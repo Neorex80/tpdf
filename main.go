@@ -10,12 +10,12 @@ import (
 )
 
 func main() {
-	if len(os.Args) <= 2 {
+	if len(os.Args) < 2 {
 		fmt.Println(`Please provide a pdf file.
 			Ex= tpdf example.pdf`)
 		os.Exit(1)
 	}
-	pdf := os.Args[2]
+	pdf := os.Args[1]
 	tpdf := "./output.txt"
 
 	err := utils.ConvertPDFToText(pdf, tpdf)

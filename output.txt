@@ -1,0 +1,48 @@
+                                         Prem Mankar
+              Chh.Sambhajinagar, Maharastra | +91 9325177342 | devprem0x01@gmail.com
+                                      LinkedIn | GitHub
+
+SUMMARY
+Results-driven Backend Developer with expertise in Go, Java, and Python, experienced in developing
+secure, scalable, and efficient backend systems. Proficient in database management, API development, and
+system architecture. Passionate about optimizing system performance and implementing secure data
+storage solutions.
+
+SKILLS
+   •   Programming Languages: Go, Java, Python, C, C++, Java Script
+   •   Frameworks & Libraries: Spring Boot, Gin, Fiber, Flask, React.js, Tailwind CSS
+   •   Frontend Technologies: HTML, CSS, Tailwind CSS
+   •   Database Management: SQLite, PostgreSQL, MySQL
+   •   API Development: RESTful APIs, GraphQL, gRPC
+   •   Security: SQL Injection Prevention, Data Encryption
+   •   Version Control: Git, GitHub
+
+
+PROJECT’S
+   1) Blogy App (Go, Gin, React.js, Tailwind CSS) [Link]
+      A high-performance blogging platform built with a Go and Gin backend for fast API response
+      and scalability, and a responsive frontend using React.js and Tailwind CSS. Implemented
+      JWT-based authentication, RESTful APIs, and state management to deliver a smooth blogging
+      experience. Integrated an AI-powered writing assistant to help users generate content
+      effortlessly. Designed for both creators and readers, ensuring modern UI and optimal
+      performance.
+   2) PropertyX (Java, Spring Boot, PostgreSQL) [Link]
+      A robust real estate marketplace with a secure backend in Java (Spring Boot) and PostgreSQL
+      for structured data management. Built RESTful APIs to serve property data to both web and
+      Android clients. Integrated features like secure user authentication, interactive property
+      maps, multimedia uploads (images/videos), and 3D property viewing, delivering an
+      immersive and reliable experience for buyers and sellers.
+
+   3) Depression Guru (Python, Flask, SQLite, HTML, CSS, JavaScript) [Link]
+      An anonymous mental health support platform developed with Flask for backend logic,
+      SQLite for secure data storage, and a clean frontend using HTML, CSS, and JavaScript.
+      Implemented AI-driven sentiment analysis to understand emotional tone, and encrypted
+      messaging to ensure user privacy. Designed a dual-mode interface—“Get Help” for users
+      seeking support and “Give Help” for those offering it—enhancing meaningful, safe
+      interactions.
+
+
+EDUCATION
+Bachelor of Science in Computer Science
+Dr. Babasaheb Ambedkar Marathwada University (BAMU) | 2025
+
