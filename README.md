@@ -61,6 +61,15 @@ Once inside the viewer, use the following commands:
 * `next` – Next page
 * `previous` – Previous page
 * `exit` – Quit the viewer
-
 ```
+
+## Demo
+
+### Help Screen
+
+![Help Screen](images/help.jpg)
+
+### Example PDF Page View
+
+![Example Page](images/example.jpg)
 
