@@ -26,32 +26,60 @@ func main() {
 	}
 
 	pages := utils.SplitIntoPages(tpdf)
+	currentPage := 0
+
 	utils.RenderPage(pages, 0)
 
 	reader := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print("\nCommand (gotoPage N / gotoChapter Title / exit): ")
-
+		fmt.Print("\nCommand (gotoPage N / gotoChapter Title / next / previous / exit): ")
 		if !reader.Scan() {
 			break
 		}
-
 		input := reader.Text()
 
-		if strings.HasPrefix(input, "gotoPage") {
+		switch {
+		case strings.HasPrefix(input, "gotoPage"):
 			var pageNum int
 			fmt.Sscanf(input, "gotoPage %d", &pageNum)
-			utils.RenderPage(pages, pageNum-1)
-		} else if strings.HasPrefix(input, "gotoChapter") {
+			if pageNum >= 1 && pageNum <= len(pages) {
+				currentPage = pageNum - 1
+				utils.RenderPage(pages, currentPage)
+			} else {
+				fmt.Println("Invalid page number.")
+			}
+
+		case strings.HasPrefix(input, "gotoChapter"):
 			title := strings.TrimPrefix(input, "gotoChapter ")
 			index := utils.FindChapterPage(pages, title)
 			if index >= 0 {
-				utils.RenderPage(pages, index)
+				currentPage = index
+				utils.RenderPage(pages, currentPage)
 			} else {
 				fmt.Println("Chapter not found.")
 			}
-		} else if input == "exit" {
-			break
+
+		case input == "next":
+			if currentPage < len(pages)-1 {
+				currentPage++
+				utils.RenderPage(pages, currentPage)
+			} else {
+				fmt.Println("You are at the last page.")
+			}
+
+		case input == "previous":
+			if currentPage > 0 {
+				currentPage--
+				utils.RenderPage(pages, currentPage)
+			} else {
+				fmt.Println("You are at the first page.")
+			}
+
+		case input == "exit":
+			return
+
+		default:
+			fmt.Println("Unknown command.")
 		}
 	}
 
