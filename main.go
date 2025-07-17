@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/prem0x01/tpdf/utils"
 )
 
 func main() {
