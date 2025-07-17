@@ -61,7 +61,7 @@ Once inside the viewer, use the following commands:
 * `next` – Next page
 * `previous` – Previous page
 * `exit` – Quit the viewer
-```
+
 
 ## Demo
 
@@ -72,4 +72,3 @@ Once inside the viewer, use the following commands:
 ### Example PDF Page View
 
 ![Example Page](images/example.jpg)
-
