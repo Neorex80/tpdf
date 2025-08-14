@@ -12,11 +12,11 @@
   - `gotoChapter Title` – Jump to a specific chapter
   - `next` – Move to the next page
   - `previous` – Move to the previous page
-  - `exit` – Exit the viewer
+  - `exit` or `q` – Exit the viewer
 
 ## Requirements
 
-- Go 1.18 or higher
+- Go 1.24.5 or higher
 - `pdftotext` from the `poppler-utils` package
 
 ### Install pdftotext
@@ -25,7 +25,7 @@ On Debian/Ubuntu:
 
 ```bash
 sudo apt install poppler-utils
-````
+```
 
 On Arch Linux:
 
@@ -33,6 +33,10 @@ On Arch Linux:
 sudo pacman -S poppler
 ```
 
+On Windows:
+
+1. Download Poppler for Windows from: https://github.com/oschwartz10612/poppler-windows/releases/
+2. Extract the downloaded archive to a folder (e.g., `C:\poppler`)
 ## Installation
 
 Clone the repository:
@@ -60,15 +64,15 @@ Once inside the viewer, use the following commands:
 * `gotoChapter Introduction` – Jump to the chapter named "Introduction"
 * `next` – Next page
 * `previous` – Previous page
-* `exit` – Quit the viewer
+* `exit` or `q` – Quit the viewer
 
 
-## Demo
+## Improvements
 
-### Help Screen
+This version of tpdf has been significantly optimized:
 
-![Help Screen](images/help.jpg)
-
-### Example PDF Page View
-
-![Example Page](images/example.jpg)
+- Removed unnecessary dependencies (Bubbletea TUI framework)
+- Consolidated code into a single file for easier maintenance
+- Reduced binary size and compilation time
+- Improved memory usage
+- Simplified code structure while maintaining all functionality
