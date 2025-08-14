@@ -1,4 +1,4 @@
-````markdown
+
 # tpdf - Terminal PDF Viewer
 
 `tpdf` is a terminal-based PDF viewer written in Go. It converts PDF files to plain text, formats them with ASCII layout, and allows navigation through pages and chapters using terminal commands.
