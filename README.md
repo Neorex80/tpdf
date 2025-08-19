@@ -5,14 +5,16 @@
 
 ## Features
 
-- Converts PDF to text using `pdftotext` (Poppler)
+- Cross-platform PDF to text conversion using `pdftotext` (Poppler)
+- Automatic detection of pdftotext on Windows, macOS, and Linux
 - Displays formatted content with ASCII styling
-- Supports:
-  - `gotoPage N` – Jump to a specific page
-  - `gotoChapter Title` – Jump to a specific chapter
-  - `next` – Move to the next page
-  - `previous` – Move to the previous page
-  - `exit` or `q` – Exit the viewer
+- Short command aliases for faster navigation:
+  - `n` or `next` – Next page
+  - `p` or `prev` – Previous page  
+  - `g N` or `gotoPage N` – Jump to page N
+  - `gc Title` or `gotoChapter Title` – Jump to chapter
+  - `q` or `exit` – Quit viewer
+  - `h` or `help` – Show help
 
 ## Requirements
 
@@ -58,21 +60,23 @@ go build -o tpdf main.go
 ./tpdf your_file.pdf
 ```
 
-Once inside the viewer, use the following commands:
+Once inside the viewer, use these commands:
 
-* `gotoPage 3` – Go to page 3
-* `gotoChapter Introduction` – Jump to the chapter named "Introduction"
-* `next` – Next page
-* `previous` – Previous page
-* `exit` or `q` – Quit the viewer
+* `n` or `next` – Next page
+* `p` or `prev` – Previous page
+* `g 3` or `gotoPage 3` – Go to page 3
+* `gc Introduction` – Jump to chapter "Introduction"
+* `q` or `exit` – Quit viewer
+* `h` or `help` – Show all commands
 
 
 ## Improvements
 
-This version of tpdf has been significantly optimized:
+This optimized version includes:
 
-- Removed unnecessary dependencies (Bubbletea TUI framework)
-- Consolidated code into a single file for easier maintenance
-- Reduced binary size and compilation time
-- Improved memory usage
-- Simplified code structure while maintaining all functionality
+- **Cross-platform compatibility** - Auto-detects pdftotext on Windows/macOS/Linux
+- **Better error handling** - Clear error messages with installation instructions
+- **Shorter commands** - Single-letter aliases (n, p, g, q, h) for faster navigation
+- **Robust file handling** - Validates PDF existence and conversion success
+- **Minimal codebase** - Single file, no external dependencies beyond Go stdlib
+- **Automatic cleanup** - Removes temporary files on exit

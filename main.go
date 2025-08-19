@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
@@ -21,28 +22,69 @@ type PDFViewer struct {
 	TextPath    string
 }
 
-// isUtilityInstalled checks if a command-line utility is available
-func isUtilityInstalled(name string) bool {
-	_, err := exec.LookPath(name)
-	return err == nil
+// getPDFToTextCommand returns the appropriate pdftotext command for the platform
+func getPDFToTextCommand() (string, error) {
+	// Try common command names
+	commands := []string{"pdftotext"}
+	
+	// Add Windows-specific paths
+	if runtime.GOOS == "windows" {
+		commands = append([]string{
+			"pdftotext.exe",
+			"C:\\poppler\\bin\\pdftotext.exe",
+			"C:\\Program Files\\poppler\\bin\\pdftotext.exe",
+		}, commands...)
+	}
+	
+	for _, cmd := range commands {
+		if _, err := exec.LookPath(cmd); err == nil {
+			return cmd, nil
+		}
+	}
+	
+	// Return installation instructions based on OS
+	var installMsg string
+	switch runtime.GOOS {
+	case "windows":
+		installMsg = "Download Poppler from: https://github.com/oschwartz10612/poppler-windows/releases/"
+	case "darwin":
+		installMsg = "Install with: brew install poppler"
+	default:
+		installMsg = "Install with: sudo apt install poppler-utils (Ubuntu/Debian) or sudo pacman -S poppler (Arch)"
+	}
+	
+	return "", fmt.Errorf("pdftotext not found. %s", installMsg)
 }
 
 // ConvertPDFToText converts a PDF file to text using pdftotext
 func (v *PDFViewer) ConvertPDFToText() error {
-	utility := "pdftotext"
-	if !isUtilityInstalled(utility) {
-		return fmt.Errorf("'%s' is not installed. Please install poppler-utils to use this tool", utility)
+	cmd, err := getPDFToTextCommand()
+	if err != nil {
+		return err
 	}
 	
-	cmd := exec.Command("pdftotext", "-layout", v.PDFPath, v.TextPath)
-	return cmd.Run()
+	// Check if PDF file exists
+	if _, err := os.Stat(v.PDFPath); os.IsNotExist(err) {
+		return fmt.Errorf("PDF file not found: %s", v.PDFPath)
+	}
+	
+	execCmd := exec.Command(cmd, "-layout", v.PDFPath, v.TextPath)
+	if err := execCmd.Run(); err != nil {
+		return fmt.Errorf("failed to convert PDF: %v", err)
+	}
+	
+	return nil
 }
 
 // LoadPages loads and splits the text file into pages
 func (v *PDFViewer) LoadPages() error {
 	content, err := os.ReadFile(v.TextPath)
 	if err != nil {
-		return fmt.Errorf("error reading file: %v", err)
+		return fmt.Errorf("failed to read converted text: %v", err)
+	}
+	
+	if len(content) == 0 {
+		return fmt.Errorf("PDF appears to be empty or conversion failed")
 	}
 
 	lines := strings.Split(string(content), "\n")
@@ -50,21 +92,22 @@ func (v *PDFViewer) LoadPages() error {
 	
 	var pages []Page
 	var currentPageLines []string
-	lineCount := 0
 
-	for _, line := range lines {
+	for i, line := range lines {
 		currentPageLines = append(currentPageLines, line)
-		lineCount++
 		
-		if lineCount >= maxLinesPerPage {
+		if (i+1)%maxLinesPerPage == 0 {
 			pages = append(pages, Page{Lines: currentPageLines})
 			currentPageLines = []string{}
-			lineCount = 0
 		}
 	}
 	
 	if len(currentPageLines) > 0 {
 		pages = append(pages, Page{Lines: currentPageLines})
+	}
+	
+	if len(pages) == 0 {
+		return fmt.Errorf("no content found in PDF")
 	}
 	
 	v.Pages = pages
@@ -148,104 +191,100 @@ func (v *PDFViewer) GotoChapter(title string) {
 // ShowHelp displays the help screen
 func (v *PDFViewer) ShowHelp() {
 	fmt.Println(`
-tpdf - Terminal PDF Viewer
-
-Usage:
-  tpdf <file.pdf>
-
 Commands:
-  next            Go to next page
-  previous        Go to previous page
-  gotoPage N      Jump to page N
-  gotoChapter T   Jump to chapter titled T
-  exit            Exit viewer
-
-Press 'q' to quit.
+  n, next         Next page
+  p, prev         Previous page  
+  g N, gotoPage N Jump to page N
+  gc T            Jump to chapter T
+  q, exit         Quit
+  h, help         Show this help
 `)
 }
 
 // ProcessCommand processes user commands
 func (v *PDFViewer) ProcessCommand(input string) {
-	switch {
-	case strings.HasPrefix(input, "gotoPage"):
+	parts := strings.Fields(input)
+	if len(parts) == 0 {
+		return
+	}
+	
+	switch parts[0] {
+	case "gotoPage", "g":
+		if len(parts) < 2 {
+			fmt.Println("Usage: gotoPage N")
+			return
+		}
 		var pageNum int
-		_, err := fmt.Sscanf(input, "gotoPage %d", &pageNum)
-		if err != nil {
-			fmt.Println("Invalid command format. Use: gotoPage N")
+		if _, err := fmt.Sscanf(parts[1], "%d", &pageNum); err != nil {
+			fmt.Println("Invalid page number")
 			return
 		}
 		v.GotoPage(pageNum)
 
-	case strings.HasPrefix(input, "gotoChapter"):
-		title := strings.TrimPrefix(input, "gotoChapter ")
-		if title == "" {
-			fmt.Println("Invalid command format. Use: gotoChapter Title")
+	case "gotoChapter", "gc":
+		if len(parts) < 2 {
+			fmt.Println("Usage: gotoChapter Title")
 			return
 		}
+		title := strings.Join(parts[1:], " ")
 		v.GotoChapter(title)
 
-	case input == "next":
+	case "next", "n":
 		v.NextPage()
 
-	case input == "previous":
+	case "previous", "prev", "p":
 		v.PreviousPage()
 
-	case input == "exit":
-		os.Remove(v.TextPath) // Clean up temporary file
+	case "exit", "quit", "q":
+		v.cleanup()
 		os.Exit(0)
 
-	case input == "q":
-		os.Remove(v.TextPath) // Clean up temporary file
-		os.Exit(0)
+	case "help", "h":
+		v.ShowHelp()
 
 	default:
-		fmt.Println("Unknown command. Type 'exit' to quit.")
+		fmt.Printf("Unknown command: %s. Type 'help' for commands.\n", parts[0])
 	}
+}
+
+// cleanup removes temporary files
+func (v *PDFViewer) cleanup() {
+	os.Remove(v.TextPath)
 }
 
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: tpdf <file.pdf>")
-		fmt.Println("Use 'tpdf' without arguments to show help.")
 		os.Exit(1)
 	}
 
-	pdfPath := os.Args[1]
-	textPath := "./.tpdf_temp.txt" // Hidden temporary file
-
 	viewer := &PDFViewer{
-		PDFPath:  pdfPath,
-		TextPath: textPath,
+		PDFPath:  os.Args[1],
+		TextPath: ".tpdf_temp.txt",
 	}
+	defer viewer.cleanup()
 
-	// Convert PDF to text
-	fmt.Println("Loading PDF...")
+	fmt.Println("Converting PDF...")
 	if err := viewer.ConvertPDFToText(); err != nil {
 		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Load pages
 	if err := viewer.LoadPages(); err != nil {
-		fmt.Printf("Error loading pages: %v\n", err)
+		fmt.Printf("Error: %v\n", err)
 		os.Exit(1)
 	}
 
-	// Clean up temporary file when exiting
-	defer os.Remove(textPath)
-
-	// Display first page
 	viewer.RenderPage()
 
 	// Command loop
-	reader := bufio.NewScanner(os.Stdin)
+	scanner := bufio.NewScanner(os.Stdin)
 	for {
-		fmt.Print("\nCommand (next/previous/gotoPage/gotoChapter/exit): ")
-		if !reader.Scan() {
+		fmt.Print("\nCommand (n/p/g N/gc Title/q/h): ")
+		if !scanner.Scan() {
 			break
 		}
-		input := strings.TrimSpace(reader.Text())
-		if input != "" {
+		if input := strings.TrimSpace(scanner.Text()); input != "" {
 			viewer.ProcessCommand(input)
 		}
 	}
